@@ -46,41 +46,30 @@ yt = []
 
 for i in range(1,11,1):
     X.append(pd.read_csv("Data/{}/{}Data_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
-    Xv.append(pd.read_csv("Data/{}/{}Data_3k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
     Xt.append(pd.read_csv("Data/{}/{}Data_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
     y.append(pd.read_csv("Data/{}/{}Labels_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
-    yv.append(pd.read_csv("Data/{}/{}Labels_3k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
     yt.append(pd.read_csv("Data/{}/{}Labels_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
     
     X[i-1],y[i-1] = dataProc(X[i-1],y[i-1])
-    Xv[i-1],yv[i-1] = dataProc(Xv[i-1],yv[i-1])
     Xt[i-1],yt[i-1] = dataProc(Xt[i-1],yt[i-1])
     
 
 
 numFeatures = len(X[0])
 X_train = np.concatenate((X[0],X[1]), axis=0)
-X_val = np.concatenate((Xv[0],Xv[1]), axis=0)
 X_test = np.concatenate((Xt[0],Xt[1]), axis=0)
 
 y_train = np.concatenate((y[0],y[1]), axis=0)
-y_val = np.concatenate((yv[0],yv[1]), axis=0)
 y_test = np.concatenate((yt[0],yt[1]), axis=0)
 
 for i in range(2,10,1):
     X_train = np.concatenate((X_train,X[i]), axis=0) 
-    X_val = np.concatenate((X_val,Xv[i]), axis=0) 
     X_test = np.concatenate((X_test,Xt[i]), axis=0) 
     y_train = np.concatenate((y_train,y[i]), axis=0)
-    y_val = np.concatenate((y_val,yv[i]), axis=0)
     y_test = np.concatenate((y_test,yt[i]), axis=0)
 
-#Merge train and val data for classifiers test
-X_train = np.concatenate( (X_train, X_val), axis=0)
-y_train = np.concatenate( (y_train, y_val), axis=0)
 
 X_train, y_train = shuffle(X_train, y_train, random_state=0)
-X_val, y_val = shuffle(X_val, y_val, random_state=0)
 X_test, y_test = shuffle(X_test, y_test, random_state=0)
 
 #######################################################################################

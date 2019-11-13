@@ -130,3 +130,23 @@ def DLmodel6(f):
                   optimizer=keras.optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=None, decay=0.0),
                  metrics=['accuracy'])
     return model 
+
+def DLmodel7(f):
+    model = keras.Sequential([
+       tf.keras.Input(shape=(f,)), 
+       tf.keras.layers.Dense(128,activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)),
+       tf.keras.layers.Dropout(0.4),
+       tf.keras.layers.Dense(64,activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)),
+       tf.keras.layers.Dropout(0.4),
+       tf.keras.layers.Dense(32,activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)),
+       tf.keras.layers.Dropout(0.3),
+       tf.keras.layers.Dense(16,activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)),
+       tf.keras.layers.Dense(1,activation='sigmoid'),      
+    ])
+
+
+
+    model.compile(loss='binary_crossentropy', 
+                  optimizer=keras.optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=None, decay=0.0),
+                 metrics=['accuracy'])
+    return model 

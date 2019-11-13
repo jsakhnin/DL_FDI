@@ -61,9 +61,9 @@ def dataProc(X1,y1):
 
 ###########################################################################################
 ##############            Loading Data and Models             #############################
-sysName = "IEEE30"
+sysName = "IEEE14"
 testType = "MainModelsTest"
-numEpochs = 10
+numEpochs = 100
 
 
 Xt = []
@@ -79,31 +79,26 @@ for i in range(1,11,1):
 checkpoint_path = "Saved Models/"+sysName+"_models/"
 numFeatures = len(Xt[0][0])
 print(numFeatures)
-#model1 = m.DLmodel1(numFeatures)
-model2 = m.DLmodel2(numFeatures)
+model1 = m.DLmodel1(numFeatures)
+#model2 = m.DLmodel2(numFeatures)
 #model3 = m.DLmodel3(numFeatures)
+model7 = m.DLmodel6(numFeatures)
 
-
-#model1.load_weights(checkpoint_path+'model1.h5')
-model2.load_weights(checkpoint_path+'model2100.h5')
+model1.load_weights(checkpoint_path+'model1_100.h5')
+#model2.load_weights(checkpoint_path+'model2100.h5')
 #model3.load_weights(checkpoint_path+'model3.h5')
+model7.load_weights(checkpoint_path+'model7_100.h5')
+
 ###########################         Evaluating         #############################
-results1 = evaluateModel(model2, Xt,yt)
-
-################################       Final Data Processing            #################################
-results_low = [results11[1], results21[1], results31[1]]
-results_mid = [results12[1], results22[1], results32[1]]
-results_high = [results13[1], results23[1], results33[1]]
-
-names = [  'Model 1',
-               'Model 2',
-               'Model 3']
+result1 = evaluateModel(model1, Xt,yt)
+result7 = evaluateModel(model7, Xt,yt)
+sparsity = np.arange(0.1,1.1,0.1)
 
 ################   DATA OUTPUT (Saving in Excel)    ###############
 # Create a Pandas Excel writer using XlsxWriter as the engine.
 writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
 
-Results = pd.DataFrame({'Model': names, 'Low': results_low,'Mid': results_mid, 'High': results_high})
+Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1': result1, 'Model 7': result7})
 
 # Convert the dataframe to an XlsxWriter Excel object.
 Results.to_excel(writer, sheet_name=sysName)
