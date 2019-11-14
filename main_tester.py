@@ -19,6 +19,7 @@ import warnings
 warnings.filterwarnings('ignore')
 import ModelsFinal as m
 from sklearn.utils import shuffle
+from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
 
 ###################################################################################
 #####################            Functions             ############################
@@ -39,13 +40,36 @@ def plot_history(histories, key='acc'):
     return plt
 
 def evaluateModel(model,Xt,yt):
-    result = []
+    accuracy = []
+    f1 = []
+    precision = []
+    recall = []
+    falsePositives = []
     
     for i in range(10):
-        resultTemp = model.evaluate(Xt[i], yt[i])
-        print(resultTemp)
-        result.append(resultTemp[1])
-    return result
+        resultTemp = model.evaluate(Xt[i], yt[i]) #Acc
+        predtemp = np.rint(model.predict(Xt[i]) )
+        
+        f1temp = f1_score(yt[i], predtemp) #F1
+        prectemp = precision_score(yt[i], predtemp) #Precision
+        recalltemp = recall_score(yt[i], predtemp) #Recall
+        
+        accuracy.append(resultTemp[1])
+        f1.append(f1temp)
+        precision.append(prectemp)
+        recall.append(recalltemp)
+        
+        CM = confusion_matrix(yt[i], predtemp)
+        
+        TN = CM[0][0]
+        FN = CM[1][0]
+        TP = CM[1][1]
+        FP = CM[0][1]
+        
+        fprateTemp = FP/(TN+FP)
+        falsePositives.append(fprateTemp)
+        
+    return accuracy, f1, precision, recall, falsePositives
 
 def dataProc(X1,y1):
     X1 = pd.DataFrame(X1)
@@ -90,15 +114,19 @@ model1.load_weights(checkpoint_path+'model1_100.h5')
 model7.load_weights(checkpoint_path+'model7_100.h5')
 
 ###########################         Evaluating         #############################
-result1 = evaluateModel(model1, Xt,yt)
-result7 = evaluateModel(model7, Xt,yt)
+result1, f1_1, precision1, recall1, fp1 = evaluateModel(model1, Xt,yt)
+result7, f1_7, precision7, recall7, fp7 = evaluateModel(model7, Xt,yt)
 sparsity = np.arange(0.1,1.1,0.1)
 
 ################   DATA OUTPUT (Saving in Excel)    ###############
 # Create a Pandas Excel writer using XlsxWriter as the engine.
 writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
 
-Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1': result1, 'Model 7': result7})
+Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1 Accuracy': result1, 'Model 7 Accuracy': result7,
+                        'Model 1 F1': f1_1, 'Model 7 F1': f1_7,
+                        'Model 1 Precision': precision1, 'Model 7 Precision': precision7,
+                        'Model 1 Recall': recall1, 'Model 7 Recall': recall7,
+                        'Model 1 False Positive Rate': fp1, 'Model 7 False Positive Rate': fp7})
 
 # Convert the dataframe to an XlsxWriter Excel object.
 Results.to_excel(writer, sheet_name=sysName)

@@ -107,7 +107,7 @@ print("Test Data: ", X_test.shape, " ", y_test.shape)
 ##########################################################################################################
 #################################             Deep Learning                          #####################
 
-checkpoint_path = "Saved Models/"+sysName+"_models/".format(imbalance)
+checkpoint_path = "Saved Models/"+sysName+"_models/{}".format(imbalance)
 
 #Model with no regulation
 model1 = m.DLmodel1(numFeatures)
@@ -117,12 +117,17 @@ history1 = model1.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation
 model1.save(checkpoint_path+'model1_{}.h5'.format(numEpochs))
 result1 = evaluateModel(model1, Xt, yt)
 
+earlystop_callback = tf.keras.callbacks.EarlyStopping(
+  monitor='val_acc', min_delta=0.0001,
+  patience=5)
+
 model7 = m.DLmodel7(numFeatures)
-LOGNAME = "IMBALANCED{}---{}-{}-model7-{}Epochs-{}".format(imbalance,sysName,testType , numEpochs, int(time.time()) )
+LOGNAME = "{}-{}-model7-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
 tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
-history7 = model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard])
-model7.save(checkpoint_path+'model7_{}.h5'.format(numEpochs))
+history7 = model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard, earlystop_callback])
+model7.save(checkpoint_path+'model7_EarlyStop.h5')
 result7 = evaluateModel(model7,Xt,yt)
+
 
 sparsity = np.arange(0.1,1.1,0.1)
 

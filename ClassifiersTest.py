@@ -19,6 +19,7 @@ import warnings
 warnings.filterwarnings('ignore')
 from sklearn.utils import shuffle
 from sklearn import tree
+from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
 
 ################################################################################
 def dataProc(X1,y1):
@@ -34,10 +35,34 @@ def dataProc(X1,y1):
     X1, y1 = shuffle(X1, y1, random_state=0)
     return X1,y1
 
+
+def evaluateClassifier (clf, Xt, yt):
+    accuracy = []
+    f1 = []
+    precision = []
+    recall = []
+    falsePositives = []
+    for i in range(10):
+        y_pred = clf.predict(Xt[i])
+        CM = confusion_matrix(yt[i], y_pred)
+        TN = CM[0][0]
+        FN = CM[1][0]
+        TP = CM[1][1]
+        FP = CM[0][1]
+        
+        accuracy.append( ((TP+TN)/(TP+FN+TN+FP))  )
+        precision.append(  (TP/(TP+FP)) )
+        recall.append(  (TP/(TP+FN))  )
+        f1.append ( ( (2*precision[i]*recall[i])/(precision[i]+recall[i]) )  )
+        falsePositives.append( (FP/(TN+FP))  )
+        
+    return accuracy, f1, precision, recall, falsePositives
+        
+    
 #################################################################################
-sysName = "IEEE30"
+sysName = "IEEE14"
 testType = "ClassifiersTest"
-X=[]
+X = []
 Xv = []
 Xt = []
 y = []
@@ -88,23 +113,29 @@ time2 = time.time()
 dctTime = time2 - time1;
 print("DT DONE")
 
+result_dct, f1_dct, precision_dct, recall_dct, fp_dct = evaluateClassifier(dtc, Xt,yt)
+
+
 time1 = time.time()
 knn.fit(X_train,y_train)
 time2 = time.time()
 knnTime = time2 - time1;
 print("KNN DONE")
+result_knn, f1_knn, precision_knn, recall_knn, fp_knn = evaluateClassifier(knn, Xt,yt)
 
 time1 = time.time()
 gnb.fit(X_train,y_train)
 time2 = time.time()
 gnbTime = time2 - time1;
 print("GNB DONE")
+result_gnb, f1_gnb, precision_gnb, recall_gnb, fp_gnb = evaluateClassifier(gnb, Xt,yt)
 
 time1 = time.time()
 svmL.fit(X_train,y_train)
 time2 = time.time()
 svmLTime = time2 - time1;
 print("Linear SVM done")
+result_svml, f1_svml, precision_svml, recall_svml, fp_svml = evaluateClassifier(svmL, Xt,yt)
 
 time1 = time.time()
 svmR.fit(X_train,y_train)
@@ -112,23 +143,7 @@ time2 = time.time()
 svmRTime = time2 - time1;
 print("RBF SVM done")
 
- 
-##Testing classifiers
-dctResult = []
-gnbResult = []
-knnResult = []
-svmLResult = []
-svmRResult = []
-sparsity = []
-
-for i in range(10):
-    sparsity.append((i+1)/10)
-    print("Testing",i)
-    dctResult.append(dtc.score(Xt[i],yt[i]))
-    gnbResult.append(gnb.score(Xt[i],yt[i]))
-    knnResult.append(knn.score(Xt[i],yt[i]))
-    svmLResult.append(svmL.score(Xt[i],yt[i]))
-    svmRResult.append(svmR.score(Xt[i],yt[i]))
+result_svmr, f1_svmr, precision_svmr, recall_svmr, fp_svmr = evaluateClassifier(svmR, Xt,yt)
     
 
 finalTimes = [dctTime, 
@@ -144,16 +159,29 @@ finalModels = ['DCT',
                'SVM-R'
                ]
 
+sparsity = np.arange(0.1,1.1,0.1)
+
 ################   DATA OUTPUT (Saving in Excel)    ###############
 # Create a Pandas Excel writer using XlsxWriter as the engine.
 writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
 
-Results = pd.DataFrame({'Sparsity': sparsity, 'Decision Tree': dctResult, 'Naive Bayesian': gnbResult, 'KNN': knnResult, 'SVM-L': svmLResult, 'SVM-R': svmRResult})
-Results2 = pd.DataFrame({'Model': finalModels, 'Training Time': finalTimes})
+
+Results_dct = pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_dct, 'F1 score': f1_dct, 'Precision': precision_dct, 'Recall': recall_dct, 'False Positive Rate': fp_dct})
+Results_gnb = pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_gnb, 'F1 score': f1_gnb, 'Precision': precision_gnb, 'Recall': recall_gnb, 'False Positive Rate': fp_gnb})
+Results_knn = pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_knn, 'F1 score': f1_knn, 'Precision': precision_knn, 'Recall': recall_knn, 'False Positive Rate': fp_knn})
+Results_svml = pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_svml, 'F1 score': f1_svml, 'Precision': precision_svml, 'Recall': recall_svml, 'False Positive Rate': fp_svml})
+Results_svmr = pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_svmr, 'F1 score': f1_svmr, 'Precision': precision_svmr, 'Recall': recall_svmr, 'False Positive Rate': fp_svmr})
+
+Results_times = pd.DataFrame({'Model': finalModels, 'Training Time': finalTimes})
 
 # Convert the dataframe to an XlsxWriter Excel object.
-Results.to_excel(writer, sheet_name="Accuracy")
-Results2.to_excel(writer, sheet_name="Training Time")
+Results_dct.to_excel(writer, sheet_name="DCT")
+Results_gnb.to_excel(writer, sheet_name="GNB")
+Results_knn.to_excel(writer, sheet_name="KNN")
+Results_svml.to_excel(writer, sheet_name="SVM_L")
+Results_svmr.to_excel(writer, sheet_name="SVM-R")
+
+Results_times.to_excel(writer, sheet_name="Training Time")
 
 # Close the Pandas Excel writer and output the Excel file.
 writer.save()
