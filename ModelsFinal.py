@@ -135,9 +135,9 @@ def DLmodel7(f):
     model = keras.Sequential([
        tf.keras.Input(shape=(f,)), 
        tf.keras.layers.Dense(128,activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)),
-       tf.keras.layers.Dropout(0.4),
+       tf.keras.layers.Dropout(0.3),
        tf.keras.layers.Dense(64,activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)),
-       tf.keras.layers.Dropout(0.4),
+       tf.keras.layers.Dropout(0.3),
        tf.keras.layers.Dense(32,activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)),
        tf.keras.layers.Dropout(0.3),
        tf.keras.layers.Dense(16,activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)),

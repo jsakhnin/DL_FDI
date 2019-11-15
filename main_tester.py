@@ -85,8 +85,8 @@ def dataProc(X1,y1):
 
 ###########################################################################################
 ##############            Loading Data and Models             #############################
-sysName = "IEEE14"
-testType = "MainModelsTest"
+sysName = "IEEE30"
+testType = "MainModelsTest_earlyStop"
 numEpochs = 100
 
 
@@ -111,7 +111,7 @@ model7 = m.DLmodel6(numFeatures)
 model1.load_weights(checkpoint_path+'model1_100.h5')
 #model2.load_weights(checkpoint_path+'model2100.h5')
 #model3.load_weights(checkpoint_path+'model3.h5')
-model7.load_weights(checkpoint_path+'model7_100.h5')
+model7.load_weights(checkpoint_path+'model7_EarlyStop.h5')
 
 ###########################         Evaluating         #############################
 result1, f1_1, precision1, recall1, fp1 = evaluateModel(model1, Xt,yt)

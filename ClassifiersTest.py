@@ -60,7 +60,7 @@ def evaluateClassifier (clf, Xt, yt):
         
     
 #################################################################################
-sysName = "IEEE14"
+sysName = "IEEE57"
 testType = "ClassifiersTest"
 X = []
 Xv = []

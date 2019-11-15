@@ -22,6 +22,7 @@ warnings.filterwarnings('ignore')
 import ModelsFinal as m
 from sklearn.utils import shuffle
 from tensorflow.keras.callbacks import TensorBoard
+from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
 
 ################################################################################
 def dataProc(X1,y1):
@@ -85,7 +86,7 @@ def plot_history(histories, key='acc'):
     return plt
 
 ##################################################################################
-sysName = "IEEE57"
+sysName = "IEEE30"
 testType = "MainModelsTest_earlyStop"
 numEpochs = 100
 
@@ -96,10 +97,10 @@ yt = []
 
 for i in range(1,11,1):
     print (i)
-    X.append(pd.read_csv("Data/{}/{}Data_1k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
-    #Xt.append(pd.read_csv("Data/{}/{}Data_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
-    y.append(pd.read_csv("Data/{}/{}Labels_1k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
-    #yt.append(pd.read_csv("Data/{}/{}Labels_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+    X.append(pd.read_csv("Data/{}/{}Data_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+    Xt.append(pd.read_csv("Data/{}/{}Data_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+    y.append(pd.read_csv("Data/{}/{}Labels_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+    yt.append(pd.read_csv("Data/{}/{}Labels_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
     
     X[i-1],y[i-1] = dataProc(X[i-1],y[i-1])
     #Xt[i-1],yt[i-1] = dataProc(Xt[i-1],yt[i-1])
@@ -130,12 +131,12 @@ print("Validation Data: ", X_val.shape, " ", y_val.shape)
 checkpoint_path = "Saved Models/"+sysName+"_models/"
 
 #Model with no regulation
-model1 = m.DLmodel1(numFeatures)
-LOGNAME = "{}-{}-model1-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
-tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
-history1 = model1.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard])
-model1.save(checkpoint_path+'model1_{}.h5'.format(numEpochs))
-result1 = evaluateModel(model1, Xt, yt)
+#model1 = m.DLmodel1(numFeatures)
+#LOGNAME = "{}-{}-model1-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
+#tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
+#history1 = model1.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard])
+#model1.save(checkpoint_path+'model1_{}.h5'.format(numEpochs))
+#result1 = evaluateModel(model1, Xt, yt)
 
 
 #model2 = m.DLmodel2(numFeatures)
@@ -184,31 +185,39 @@ earlystop_callback = tf.keras.callbacks.EarlyStopping(
 model7 = m.DLmodel7(numFeatures)
 LOGNAME = "{}-{}-model7-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
 tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
-history7 = model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard, earlystop_callback])
+model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard, earlystop_callback])
 model7.save(checkpoint_path+'model7_EarlyStop.h5')
 result7 = evaluateModel(model7,Xt,yt)
 
-sparsity = np.arange(0.1,1.1,0.1)
-result1, f1_1, precision1, recall1, fp1 = evaluateModel(model1, Xt,yt)
-result7, f1_7, precision7, recall7, fp7 = evaluateModel(model7, Xt,yt)
 
-################   DATA OUTPUT (Saving in Excel)    ###############
-# Create a Pandas Excel writer using XlsxWriter as the engine.
-writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
 
-#Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1': result1, 'Model 2': result2,'Model 3': result3, 'Model 4': result4,
-                        #'Model 5': result5,  'Model 6': result6, 'Model 7': result7})
 
-Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1 Accuracy': result1, 'Model 7 Accuracy': result7,
-                        'Model 1 F1': f1_1, 'Model 7 F1': f1_7,
-                        'Model 1 Precision': precision1, 'Model 7 Precision': precision7,
-                        'Model 1 Recall': recall1, 'Model 7 Recall': recall7,
-                        'Model 1 False Positive Rate': fp1, 'Model 7 False Positive Rate': fp7})
 
-# Convert the dataframe to an XlsxWriter Excel object.
-Results.to_excel(writer, sheet_name=sysName)
 
-# Close the Pandas Excel writer and output the Excel file.
-writer.save()
 
-print("PROGRAM IS COMPLETE !!!!! ")
+
+
+#sparsity = np.arange(0.1,1.1,0.1)
+#result1, f1_1, precision1, recall1, fp1 = evaluateModel(model1, Xt,yt)
+#result7, f1_7, precision7, recall7, fp7 = evaluateModel(model7, Xt,yt)
+
+#################   DATA OUTPUT (Saving in Excel)    ###############
+## Create a Pandas Excel writer using XlsxWriter as the engine.
+#writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+
+##Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1': result1, 'Model 2': result2,'Model 3': result3, 'Model 4': result4,
+                        ##'Model 5': result5,  'Model 6': result6, 'Model 7': result7})
+
+#Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1 Accuracy': result1, 'Model 7 Accuracy': result7,
+                        #'Model 1 F1': f1_1, 'Model 7 F1': f1_7,
+                        #'Model 1 Precision': precision1, 'Model 7 Precision': precision7,
+                        #'Model 1 Recall': recall1, 'Model 7 Recall': recall7,
+                        #'Model 1 False Positive Rate': fp1, 'Model 7 False Positive Rate': fp7})
+
+## Convert the dataframe to an XlsxWriter Excel object.
+#Results.to_excel(writer, sheet_name=sysName)
+
+## Close the Pandas Excel writer and output the Excel file.
+#writer.save()
+
+#print("PROGRAM IS COMPLETE !!!!! ")
