@@ -85,7 +85,7 @@ def dataProc(X1,y1):
 
 ###########################################################################################
 ##############            Loading Data and Models             #############################
-sysName = "IEEE30"
+sysName = "IEEE57"
 testType = "MainModelsTest_earlyStop"
 numEpochs = 100
 

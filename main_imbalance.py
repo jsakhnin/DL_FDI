@@ -62,87 +62,91 @@ def plot_history(histories, key='acc'):
     plt.xlim([0,max(history.epoch)])
     return plt
 
+def imbalance_data(sysName, imbalance):
+    X=[]
+    y = []
+    
+    for i in range(1,11,1):
+        print (i)
+        X.append(pd.read_csv("Data/{}/{}Data_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:int(5000+round(imbalance*5000))] )
+        y.append(pd.read_csv("Data/{}/{}Labels_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:int(5000+round(imbalance*5000))])
+        
+        X[i-1],y[i-1] = dataProc(X[i-1],y[i-1])
+    
+        
+    X_train = np.concatenate((X[0],X[1]), axis=0)
+    
+    y_train = np.concatenate((y[0],y[1]), axis=0)
+    for i in range(2,10,1):
+        X_train = np.concatenate((X_train,X[i]), axis=0) 
+        y_train = np.concatenate((y_train,y[i]), axis=0)
+    
+    X_train, y_train = shuffle(X_train, y_train, random_state=0)
+    
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.33, random_state=42)
+    
+    return X_train, X_val, y_train, y_val
+
+def load_testData(sysName):
+    ##Loading Test Data
+    Xt = []
+    yt = []
+    
+    for i in range(1,11,1):
+        print (i)
+        Xt.append(pd.read_csv("Data/{}/{}Data_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+        yt.append(pd.read_csv("Data/{}/{}Labels_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+        
+        Xt[i-1],yt[i-1] = dataProc(Xt[i-1],yt[i-1])
+    
+    return Xt, yt
 ##################################################################################
-sysName = "IEEE30"
+sysName = "IEEE57"
 numEpochs = 100
-imbalance = 0.5 #percentage of attack data to keep
-testType = "MainModels_Imbalanced_{}".format(imbalance)
-
-X=[]
-Xt = []
-y = []
-yt = []
-
-for i in range(1,11,1):
-    print (i)
-    X.append(pd.read_csv("Data/{}/{}Data_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:(5000+round(imbalance*5000))] )
-    Xt.append(pd.read_csv("Data/{}/{}Data_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:(5000+round(imbalance*5000))] )
-    y.append(pd.read_csv("Data/{}/{}Labels_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:(5000+round(imbalance*5000))])
-    yt.append(pd.read_csv("Data/{}/{}Labels_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:(5000+round(imbalance*5000))])
-    
-    X[i-1],y[i-1] = dataProc(X[i-1],y[i-1])
-    Xt[i-1],yt[i-1] = dataProc(Xt[i-1],yt[i-1])
-
-    
-X_train = np.concatenate((X[0],X[1]), axis=0)
-X_test = np.concatenate((Xt[0],Xt[1]), axis=0)
-
-y_train = np.concatenate((y[0],y[1]), axis=0)
-y_test = np.concatenate((yt[0],yt[1]), axis=0)
-numFeatures = len(X_train[0])
-for i in range(2,10,1):
-    X_train = np.concatenate((X_train,X[i]), axis=0) 
-    X_test = np.concatenate((X_test,Xt[i]), axis=0) 
-    y_train = np.concatenate((y_train,y[i]), axis=0)
-    y_test = np.concatenate((y_test,yt[i]), axis=0)
-
-X_train, y_train = shuffle(X_train, y_train, random_state=0)
-X_test, y_test = shuffle(X_test, y_test, random_state=0)
-
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.33, random_state=42)
-
-print("Training Data: ", X_train.shape, " ", y_train.shape)
-print("Validation Data: ", X_val.shape, " ", y_val.shape)
-print("Test Data: ", X_test.shape, " ", y_test.shape)
+testType = "MainModels_Imbalanced"
 ##########################################################################################################
 #################################             Deep Learning                          #####################
+imbalanceRange = np.arange(0.1,1.0,0.1)
+Results = []
 
-checkpoint_path = "Saved Models/"+sysName+"_models/{}".format(imbalance)
-
-#Model with no regulation
-model1 = m.DLmodel1(numFeatures)
-LOGNAME = "IMBALANCED{}---{}-{}-model1-{}Epochs-{}".format(imbalance,sysName,testType , numEpochs, int(time.time()) )
-tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
-history1 = model1.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard])
-model1.save(checkpoint_path+'model1_{}.h5'.format(numEpochs))
-result1 = evaluateModel(model1, Xt, yt)
-
-earlystop_callback = tf.keras.callbacks.EarlyStopping(
-  monitor='val_acc', min_delta=0.0001,
-  patience=5)
-
-model7 = m.DLmodel7(numFeatures)
-LOGNAME = "{}-{}-model7-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
-tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
-history7 = model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard, earlystop_callback])
-model7.save(checkpoint_path+'model7_EarlyStop.h5')
-result7 = evaluateModel(model7,Xt,yt)
-
-
+Xt, yt = load_testData(sysName)
 sparsity = np.arange(0.1,1.1,0.1)
+
+for imbalance in imbalanceRange:
+    
+    checkpoint_path = "Saved Models/"+sysName+"_models/{}".format(imbalance)
+    X_train, X_val, y_train, y_val = imbalance_data(sysName, imbalance)
+    numFeatures = len(X_train[0])
+    print("Features = ", numFeatures)    
+    #Model with no regulation
+    model1 = m.DLmodel1(numFeatures)
+    LOGNAME = "IMBALANCED{}---{}-{}-model1-{}Epochs-{}".format(imbalance,sysName,testType , numEpochs, int(time.time()) )
+    tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
+    history1 = model1.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard])
+    model1.save(checkpoint_path+'model1_{}.h5'.format(numEpochs))
+    result1 = evaluateModel(model1, Xt, yt)
+    
+    earlystop_callback = tf.keras.callbacks.EarlyStopping(
+      monitor='val_acc', min_delta=0.0001,
+      patience=5)
+    
+    model7 = m.DLmodel7(numFeatures)
+    LOGNAME = "{}-{}-model7-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
+    tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
+    history7 = model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard, earlystop_callback])
+    model7.save(checkpoint_path+'model7_EarlyStop.h5')
+    result7 = evaluateModel(model7,Xt,yt)
+
+    Results.append(  pd.DataFrame({'Sparsity': sparsity, 'Model 1': result1, 'Model 7': result7})  )
 
 
 ################   DATA OUTPUT (Saving in Excel)    ###############
 # Create a Pandas Excel writer using XlsxWriter as the engine.
 writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
 
-#Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1': result1, 'Model 2': result2,'Model 3': result3, 'Model 4': result4,
-                        #'Model 5': result5,  'Model 6': result6, 'Model 7': result7})
+for i in range(9):
+    Results[i].to_excel(writer, sheet_name = "Imb {}".format(imbalanceRange[i]) )
 
-Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1': result1, 'Model 7': result7})
-
-# Convert the dataframe to an XlsxWriter Excel object.
-Results.to_excel(writer, sheet_name=sysName)
 
 # Close the Pandas Excel writer and output the Excel file.
 writer.save()

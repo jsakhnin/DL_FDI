@@ -86,7 +86,7 @@ def plot_history(histories, key='acc'):
     return plt
 
 ##################################################################################
-sysName = "IEEE30"
+sysName = "IEEE57"
 testType = "MainModelsTest_earlyStop"
 numEpochs = 100
 
@@ -136,7 +136,7 @@ checkpoint_path = "Saved Models/"+sysName+"_models/"
 #tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
 #history1 = model1.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard])
 #model1.save(checkpoint_path+'model1_{}.h5'.format(numEpochs))
-#result1 = evaluateModel(model1, Xt, yt)
+##result1 = evaluateModel(model1, Xt, yt)
 
 
 #model2 = m.DLmodel2(numFeatures)
@@ -187,7 +187,7 @@ LOGNAME = "{}-{}-model7-{}Epochs-{}".format(sysName,testType , numEpochs, int(ti
 tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
 model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard, earlystop_callback])
 model7.save(checkpoint_path+'model7_EarlyStop.h5')
-result7 = evaluateModel(model7,Xt,yt)
+#result7 = evaluateModel(model7,Xt,yt)
 
 
 
@@ -197,27 +197,27 @@ result7 = evaluateModel(model7,Xt,yt)
 
 
 
-#sparsity = np.arange(0.1,1.1,0.1)
-#result1, f1_1, precision1, recall1, fp1 = evaluateModel(model1, Xt,yt)
-#result7, f1_7, precision7, recall7, fp7 = evaluateModel(model7, Xt,yt)
+sparsity = np.arange(0.1,1.1,0.1)
+result1, f1_1, precision1, recall1, fp1 = evaluateModel(model1, Xt,yt)
+result7, f1_7, precision7, recall7, fp7 = evaluateModel(model7, Xt,yt)
 
-#################   DATA OUTPUT (Saving in Excel)    ###############
-## Create a Pandas Excel writer using XlsxWriter as the engine.
-#writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+################   DATA OUTPUT (Saving in Excel)    ###############
+# Create a Pandas Excel writer using XlsxWriter as the engine.
+writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
 
-##Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1': result1, 'Model 2': result2,'Model 3': result3, 'Model 4': result4,
-                        ##'Model 5': result5,  'Model 6': result6, 'Model 7': result7})
+#Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1': result1, 'Model 2': result2,'Model 3': result3, 'Model 4': result4,
+                        #'Model 5': result5,  'Model 6': result6, 'Model 7': result7})
 
-#Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1 Accuracy': result1, 'Model 7 Accuracy': result7,
-                        #'Model 1 F1': f1_1, 'Model 7 F1': f1_7,
-                        #'Model 1 Precision': precision1, 'Model 7 Precision': precision7,
-                        #'Model 1 Recall': recall1, 'Model 7 Recall': recall7,
-                        #'Model 1 False Positive Rate': fp1, 'Model 7 False Positive Rate': fp7})
+Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1 Accuracy': result1, 'Model 7 Accuracy': result7,
+                        'Model 1 F1': f1_1, 'Model 7 F1': f1_7,
+                        'Model 1 Precision': precision1, 'Model 7 Precision': precision7,
+                        'Model 1 Recall': recall1, 'Model 7 Recall': recall7,
+                        'Model 1 False Positive Rate': fp1, 'Model 7 False Positive Rate': fp7})
 
-## Convert the dataframe to an XlsxWriter Excel object.
-#Results.to_excel(writer, sheet_name=sysName)
+# Convert the dataframe to an XlsxWriter Excel object.
+Results.to_excel(writer, sheet_name=sysName)
 
-## Close the Pandas Excel writer and output the Excel file.
-#writer.save()
+# Close the Pandas Excel writer and output the Excel file.
+writer.save()
 
-#print("PROGRAM IS COMPLETE !!!!! ")
+print("PROGRAM IS COMPLETE !!!!! ")

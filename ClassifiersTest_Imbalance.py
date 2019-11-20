@@ -19,6 +19,7 @@ import warnings
 warnings.filterwarnings('ignore')
 from sklearn.utils import shuffle
 from sklearn import tree
+from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
 
 ################################################################################
 def dataProc(X1,y1):
@@ -34,163 +35,121 @@ def dataProc(X1,y1):
     X1, y1 = shuffle(X1, y1, random_state=0)
     return X1,y1
 
-#################################################################################
-sysName = "IEEE14"
-testType = "ClassifiersTest_Imbalanced"
 
-X1 = pd.read_csv("Data/"+sysName+"/"+sysName+"Data_40k_lowSparsity"+".csv",header=None).iloc[:25000]
-y1 = pd.read_csv("Data/"+sysName+"/"+sysName+"Labels_40k_lowSparsity"+".csv",header=None).iloc[:25000]
-X2 = pd.read_csv("Data/"+sysName+"/"+sysName+"Data_40k_midSparsity"+".csv",header=None).iloc[:25000]
-y2 = pd.read_csv("Data/"+sysName+"/"+sysName+"Labels_40k_midSparsity"+".csv",header=None).iloc[:25000]
-X3 = pd.read_csv("Data/"+sysName+"/"+sysName+"Data_40k_highSparsity"+".csv",header=None).iloc[:25000]
-y3 = pd.read_csv("Data/"+sysName+"/"+sysName+"Labels_40k_highSparsity"+".csv",header=None).iloc[:25000]
+def evaluateClassifier (clf, Xt, yt):
+    accuracy = []
+    f1 = []
+    precision = []
+    recall = []
+    falsePositives = []
+    for i in range(10):
+        y_pred = clf.predict(Xt[i])
+        CM = confusion_matrix(yt[i], y_pred)
+        TN = CM[0][0]
+        FN = CM[1][0]
+        TP = CM[1][1]
+        FP = CM[0][1]
+        
+        accuracy.append( ((TP+TN)/(TP+FN+TN+FP))  )
+        precision.append(  (TP/(TP+FP)) )
+        recall.append(  (TP/(TP+FN))  )
+        f1.append ( ( (2*precision[i]*recall[i])/(precision[i]+recall[i]) )  )
+        falsePositives.append( (FP/(TN+FP))  )
+        
+    return accuracy, f1, precision, recall, falsePositives
 
-Xv1 = pd.read_csv("Data/"+sysName+"/"+sysName+"Data_10k_lowSparsity"+".csv",header=None).iloc[:6250]
-yv1 = pd.read_csv("Data/"+sysName+"/"+sysName+"Labels_10k_lowSparsity"+".csv",header=None).iloc[:6250]
-Xv2 = pd.read_csv("Data/"+sysName+"/"+sysName+"Data_10k_midSparsity"+".csv",header=None).iloc[:6250]
-yv2 = pd.read_csv("Data/"+sysName+"/"+sysName+"Labels_10k_midSparsity"+".csv",header=None).iloc[:6250]
-Xv3 = pd.read_csv("Data/"+sysName+"/"+sysName+"Data_10k_highSparsity"+".csv",header=None).iloc[:6250]
-yv3 = pd.read_csv("Data/"+sysName+"/"+sysName+"Labels_10k_highSparsity"+".csv",header=None).iloc[:6250]
+def imbalance_data(sysName, imbalance):
+    X=[]
+    y = []
+    
+    for i in range(1,11,1):
+        print (i)
+        X.append(pd.read_csv("Data/{}/{}Data_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:int(5000+round(imbalance*5000))] )
+        y.append(pd.read_csv("Data/{}/{}Labels_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:int(5000+round(imbalance*5000))])
+        
+        X[i-1],y[i-1] = dataProc(X[i-1],y[i-1])
+    
+    X_train = np.concatenate((X[0],X[1]), axis=0)
+    y_train = np.concatenate((y[0],y[1]), axis=0)
+    for i in range(2,10,1):
+        X_train = np.concatenate((X_train,X[i]), axis=0) 
+        y_train = np.concatenate((y_train,y[i]), axis=0)
+    
+    X_train, y_train = shuffle(X_train, y_train, random_state=0)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.33, random_state=42)
+    
+    return X_train, X_val, y_train, y_val
 
-Xt1 = pd.read_csv("Data/"+sysName+"/"+sysName+"Data_4k_lowSparsity"+".csv")
-yt1 = pd.read_csv("Data/"+sysName+"/"+sysName+"Labels_4k_lowSparsity"+".csv")
-Xt2 = pd.read_csv("Data/"+sysName+"/"+sysName+"Data_4k_midSparsity"+".csv")
-yt2 = pd.read_csv("Data/"+sysName+"/"+sysName+"Labels_4k_midSparsity"+".csv")
-Xt3 = pd.read_csv("Data/"+sysName+"/"+sysName+"Data_4k_highSparsity"+".csv")
-yt3 = pd.read_csv("Data/"+sysName+"/"+sysName+"Labels_4k_highSparsity"+".csv")
-
-X1,y1 = dataProc(X1,y1)
-Xv1,yv1 = dataProc(Xv1,yv1)
-Xt1,yt1 = dataProc(Xt1,yt1)
-X2,y2 = dataProc(X2,y2)
-Xv2,yv2 = dataProc(Xv2,yv2)
-Xt2,yt2 = dataProc(Xt2,yt2)
-
-X3,y3 = dataProc(X3,y3)
-Xv3,yv3 = dataProc(Xv3,yv3)
-Xt3,yt3 = dataProc(Xt3,yt3)
-
-numFeatures = len(X1[0])
-
-X = np.concatenate((X1, X2, X3), axis=0)
-y = np.concatenate((y1, y2, y3), axis=0)
-Xv = np.concatenate((Xv1, Xv2, Xv3), axis=0)
-yv = np.concatenate((yv1, yv2, yv3), axis=0)
-X = np.concatenate((X,Xv), axis = 0)
-y = np.concatenate((y,yv), axis = 0)
-
-Xt = np.concatenate((Xt1, Xt2, Xt3), axis=0)
-yt = np.concatenate((yt1, yt2, yt3), axis=0)
-
-X, y = shuffle(X, y, random_state=0)
-Xt, yt = shuffle(Xt, yt, random_state=0)
-
-#######################################################################################
-#Classifiers
-gnb = GaussianNB()
-knn = KNeighborsClassifier(n_neighbors=20)
-dtc = tree.DecisionTreeClassifier()
-svmL = svm.SVC(kernel = 'linear')
-svmR = svm.SVC(kernel = 'rbf')
-
-print("Initializing training")
-#Training Classifiers
-time1= time.time()
-dtc.fit(X,y)
-time2 = time.time()
-dctTime = time2 - time1;
-print("DT DONE")
-
-time1 = time.time()
-knn.fit(X,y)
-time2 = time.time()
-knnTime = time2 - time1;
-print("KNN DONE")
-
-time1 = time.time()
-gnb.fit(X,y)
-time2 = time.time()
-gnbTime = time2 - time1;
-print("GNB DONE")
-
-time1 = time.time()
-svmL.fit(X,y)
-time2 = time.time()
-svmLTime = time2 - time1;
-print("Linear SVM done")
-
-time1 = time.time()
-svmR.fit(X,y)
-time2 = time.time()
-svmRTime = time2 - time1;
-print("RBF SVM done")
-
- 
-##Testing classifiers
-dctResult_low = dtc.score(Xt1,yt1)
-dctResult_mid = dtc.score(Xt2,yt2)
-dctResult_high = dtc.score(Xt3,yt3)
-
-gnbResult_low = gnb.score(Xt1,yt1)
-gnbResult_mid = gnb.score(Xt2,yt2)
-gnbResult_high = gnb.score(Xt3,yt3)
-
-
-knnResult_low = knn.score(Xt1,yt1)
-knnResult_mid = knn.score(Xt2,yt2)
-knnResult_high = knn.score(Xt3,yt3)
-
-svmLResult_low = svmL.score(Xt1,yt1)
-svmLResult_mid = svmL.score(Xt2,yt2)
-svmLResult_high = svmL.score(Xt3,yt3)
-
-svmRResult_low = svmR.score(Xt1,yt1)
-svmRResult_mid = svmR.score(Xt2,yt2)
-svmRResult_high = svmR.score(Xt3,yt3)
-
-print("DCT high: ", dctResult_high)
-print("DCT mid: ", dctResult_mid)
-print("DCT low: ", dctResult_low)
-
-print("GNB high: ", gnbResult_high)
-print("GNB mid: ", gnbResult_mid)
-print("GNB low: ", gnbResult_low)
-
-print("KNN high: ", knnResult_high)
-print("KNN mid: ", knnResult_mid)
-print("KNN low: ", knnResult_low)
-
-finalResults = [dctResult_low, dctResult_mid, dctResult_high,
-                knnResult_low, knnResult_mid, knnResult_high,
-                gnbResult_low, gnbResult_mid, gnbResult_high,
-                svmLResult_low, svmLResult_mid, svmLResult_high,
-                svmRResult_low, svmRResult_mid, svmRResult_high
-                ]
-
-finalTimes = [dctTime, dctTime, dctTime, 
-              knnTime, knnTime, knnTime,
-              gnbTime, gnbTime, gnbTime,
-              svmLTime, svmLTime, svmLTime,
-              svmRTime, svmRTime, svmRTime]
-
-finalModels = ['DCT low', 'DCT mid', 'DCT high',
-               'KNN low', 'KNN mid','KNN high',
-               'NB low', 'NB mid', 'NB high',
-               'SVM-L low', 'SVM-L mid', 'SVM-L high',
-               'SVM-R low', 'SVM-R mid', 'SVM-R high'
-               ]
+def load_testData(sysName):
+    ##Loading Test Data
+    Xt = []
+    yt = []
+    
+    for i in range(1,11,1):
+        print (i)
+        Xt.append(pd.read_csv("Data/{}/{}Data_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+        yt.append(pd.read_csv("Data/{}/{}Labels_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+        
+        Xt[i-1],yt[i-1] = dataProc(Xt[i-1],yt[i-1])
+    
+    return Xt, yt
+##################################################################################
+##########################################################################################################
+#################################             Deep Learning                          #####################
+def imb_test (sysName):
+    testType = "ClassifiersTest_Imbalanced"    
+    imbalanceRange = np.arange(0.1,1.0,0.1)
+    Results_dct = []
+    Results_knn = []
+    Results_gnb = []
+    
+    #Classifiers
+    gnb = GaussianNB()
+    knn = KNeighborsClassifier(n_neighbors=20)
+    dtc = tree.DecisionTreeClassifier()
+    
+    Xt, yt = load_testData(sysName)
+    sparsity = np.arange(0.1,1.1,0.1)
+    
+    for imbalance in imbalanceRange:
+        checkpoint_path = "Saved Models/"+sysName+"_models/{}".format(imbalance)
+        X_train, X_val, y_train, y_val = imbalance_data(sysName, imbalance)
+        numFeatures = len(X_train[0])
+        print("Features = ", numFeatures)   
+        dtc.fit(X_train,y_train)
+        result_dct, f1_dct, precision_dct, recall_dct, fp_dct = evaluateClassifier(dtc, Xt,yt)    
+        knn.fit(X_train,y_train)
+        result_knn, f1_knn, precision_knn, recall_knn, fp_knn = evaluateClassifier(knn, Xt,yt)    
+        gnb.fit(X_train,y_train)
+        result_gnb, f1_gnb, precision_gnb, recall_gnb, fp_gnb = evaluateClassifier(gnb, Xt,yt)
+        
+        Results_dct.append(  pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_dct, 'F1 score': f1_dct, 'Precision': precision_dct, 'Recall': recall_dct, 'False Positive Rate': fp_dct})  )
+        Results_gnb.append(  pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_gnb, 'F1 score': f1_gnb, 'Precision': precision_gnb, 'Recall': recall_gnb, 'False Positive Rate': fp_gnb})  )
+        Results_knn.append(  pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_knn, 'F1 score': f1_knn, 'Precision': precision_knn, 'Recall': recall_knn, 'False Positive Rate': fp_knn})  )
+        
+    
+    ################   DATA OUTPUT (Saving in Excel)    ###############
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    writer_dct = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_DCT.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+    writer_gnb = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_GNB.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+    writer_knn = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_KNN.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+    
+    for i in range(9):
+        Results_dct[i].to_excel(writer_dct, sheet_name = "Imb {}".format(imbalanceRange[i]) )
+        Results_gnb[i].to_excel(writer_gnb, sheet_name = "Imb {}".format(imbalanceRange[i]) )
+        Results_knn[i].to_excel(writer_knn, sheet_name = "Imb {}".format(imbalanceRange[i]) )
+        
+    # Close the Pandas Excel writer and output the Excel file.
+    writer_dct.save()
+    writer_gnb.save()
+    writer_knn.save()
 
 
-################   DATA OUTPUT (Saving in Excel)    ###############
-# Create a Pandas Excel writer using XlsxWriter as the engine.
-writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
 
-Results = pd.DataFrame({'Model': finalModels, 'Accuracy': finalResults, 'Training Time': finalTimes})
 
-# Convert the dataframe to an XlsxWriter Excel object.
-Results.to_excel(writer, sheet_name=sysName)
 
-# Close the Pandas Excel writer and output the Excel file.
-writer.save()
 
+imb_test("IEEE30")
+imb_test("IEEE14")
+imb_test("IEEE57")
 print("PROGRAM IS COMPLETE !!!!! ")
