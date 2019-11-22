@@ -141,7 +141,7 @@ def DLmodel7(f):
        tf.keras.layers.Dense(32,activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)),
        tf.keras.layers.Dropout(0.3),
        tf.keras.layers.Dense(16,activation='relu', kernel_regularizer=keras.regularizers.l2(0.001)),
-       tf.keras.layers.Dense(1,activation='sigmoid'),      
+       tf.keras.layers.Dense(1,activation='sigmoid'), 
     ])
 
 

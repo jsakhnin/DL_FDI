@@ -87,7 +87,7 @@ def plot_history(histories, key='acc'):
 
 ##################################################################################
 sysName = "IEEE57"
-testType = "MainModelsTest_earlyStop"
+testType = "MainModelsTime"
 numEpochs = 100
 
 X=[]
@@ -131,12 +131,12 @@ print("Validation Data: ", X_val.shape, " ", y_val.shape)
 checkpoint_path = "Saved Models/"+sysName+"_models/"
 
 #Model with no regulation
-#model1 = m.DLmodel1(numFeatures)
-#LOGNAME = "{}-{}-model1-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
-#tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
-#history1 = model1.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard])
+model1 = m.DLmodel1(numFeatures)
+LOGNAME = "{}-{}-model1-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
+tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
+history1 = model1.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard])
 #model1.save(checkpoint_path+'model1_{}.h5'.format(numEpochs))
-##result1 = evaluateModel(model1, Xt, yt)
+#result1 = evaluateModel(model1, Xt, yt)
 
 
 #model2 = m.DLmodel2(numFeatures)
@@ -178,15 +178,15 @@ checkpoint_path = "Saved Models/"+sysName+"_models/"
 #model6.save(checkpoint_path+'model6_{}.h5'.format(numEpochs))
 #result6 = evaluateModel(model6,Xt,yt)
 
-earlystop_callback = tf.keras.callbacks.EarlyStopping(
-  monitor='val_acc', min_delta=0.0001,
-  patience=5)
+#earlystop_callback = tf.keras.callbacks.EarlyStopping(
+  #monitor='val_acc', min_delta=0.0001,
+  #patience=5)
 
-model7 = m.DLmodel7(numFeatures)
-LOGNAME = "{}-{}-model7-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
-tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
-model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard, earlystop_callback])
-model7.save(checkpoint_path+'model7_EarlyStop.h5')
+#model7 = m.DLmodel7(numFeatures)
+#LOGNAME = "{}-{}-model7-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
+#tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
+#model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard, earlystop_callback])
+#model7.save(checkpoint_path+'model7_EarlyStop.h5')
 #result7 = evaluateModel(model7,Xt,yt)
 
 
