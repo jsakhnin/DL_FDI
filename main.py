@@ -69,6 +69,7 @@ def evaluateModel(model,Xt,yt):
         falsePositives.append(fprateTemp)
         
     return accuracy, f1, precision, recall, falsePositives
+
 def plot_history(histories, key='acc'):
     plt.figure(figsize=(16,10))
 
