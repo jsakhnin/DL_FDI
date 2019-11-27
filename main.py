@@ -88,7 +88,8 @@ def plot_history(histories, key='acc'):
 
 ##################################################################################
 sysName = "IEEE57"
-testType = "MainModelsTime"
+sysName2 = "IEEE57_2"
+testType = "MainModels_57_2"
 numEpochs = 100
 
 X=[]
@@ -98,10 +99,10 @@ yt = []
 
 for i in range(1,11,1):
     print (i)
-    X.append(pd.read_csv("Data/{}/{}Data_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
-    Xt.append(pd.read_csv("Data/{}/{}Data_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
-    y.append(pd.read_csv("Data/{}/{}Labels_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
-    yt.append(pd.read_csv("Data/{}/{}Labels_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+    X.append(pd.read_csv("Data/{}/{}Data_10k_{}Sparsity.csv".format(sysName2, sysName, i/10 ), header=None))
+    Xt.append(pd.read_csv("Data/{}/{}Data_2k_{}Sparsity.csv".format(sysName2, sysName, i/10 ), header=None))
+    y.append(pd.read_csv("Data/{}/{}Labels_10k_{}Sparsity.csv".format(sysName2, sysName, i/10 ), header=None))
+    yt.append(pd.read_csv("Data/{}/{}Labels_2k_{}Sparsity.csv".format(sysName2, sysName, i/10 ), header=None))
     
     X[i-1],y[i-1] = dataProc(X[i-1],y[i-1])
     #Xt[i-1],yt[i-1] = dataProc(Xt[i-1],yt[i-1])
@@ -179,16 +180,16 @@ history1 = model1.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation
 #model6.save(checkpoint_path+'model6_{}.h5'.format(numEpochs))
 #result6 = evaluateModel(model6,Xt,yt)
 
-#earlystop_callback = tf.keras.callbacks.EarlyStopping(
-  #monitor='val_acc', min_delta=0.0001,
-  #patience=5)
+earlystop_callback = tf.keras.callbacks.EarlyStopping(
+  monitor='val_acc', min_delta=0.0001,
+  patience=5)
 
-#model7 = m.DLmodel7(numFeatures)
-#LOGNAME = "{}-{}-model7-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
-#tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
-#model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard, earlystop_callback])
-#model7.save(checkpoint_path+'model7_EarlyStop.h5')
-#result7 = evaluateModel(model7,Xt,yt)
+model7 = m.DLmodel7(numFeatures)
+LOGNAME = "{}-{}-model7-{}Epochs-{}".format(sysName,testType , numEpochs, int(time.time()) )
+tensorboard = TensorBoard(log_dir='logs\{}'.format(LOGNAME))
+model7.fit(X_train,y_train,epochs=numEpochs ,batch_size=32,validation_data=(X_val,y_val), callbacks = [tensorboard, earlystop_callback])
+model7.save(checkpoint_path+'model7_EarlyStop.h5')
+result7 = evaluateModel(model7,Xt,yt)
 
 
 
