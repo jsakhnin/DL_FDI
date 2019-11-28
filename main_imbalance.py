@@ -68,8 +68,8 @@ def imbalance_data(sysName, imbalance):
     
     for i in range(1,11,1):
         print (i)
-        X.append(pd.read_csv("Data/{}/{}Data_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:int(5000+round(imbalance*5000))] )
-        y.append(pd.read_csv("Data/{}/{}Labels_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:int(5000+round(imbalance*5000))])
+        X.append(pd.read_csv("Data/{}_2/{}Data_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:int(5000+round(imbalance*5000))] )
+        y.append(pd.read_csv("Data/{}_2/{}Labels_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None).iloc[:int(5000+round(imbalance*5000))])
         
         X[i-1],y[i-1] = dataProc(X[i-1],y[i-1])
     
@@ -103,7 +103,7 @@ def load_testData(sysName):
 ##################################################################################
 sysName = "IEEE57"
 numEpochs = 100
-testType = "MainModels_Imbalanced"
+testType = "MainModels_Imbalanced2"
 ##########################################################################################################
 #################################             Deep Learning                          #####################
 imbalanceRange = np.arange(0.1,1.0,0.1)
