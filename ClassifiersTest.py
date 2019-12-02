@@ -61,8 +61,8 @@ def evaluateClassifier (clf, Xt, yt):
     
 #################################################################################
 sysName = "IEEE57"
-sysName2 = "IEEE57_2"
-testType = "ClassifiersTest_57_2"
+#sysName2 = "IEEE57_2"
+testType = "ClassifiersTest"
 X = []
 Xv = []
 Xt = []
@@ -71,10 +71,10 @@ yv = []
 yt = []
 
 for i in range(1,11,1):
-    X.append(pd.read_csv("Data/{}/{}Data_10k_{}Sparsity.csv".format(sysName2, sysName, i/10 ), header=None))
-    Xt.append(pd.read_csv("Data/{}/{}Data_2k_{}Sparsity.csv".format(sysName2, sysName, i/10 ), header=None))
-    y.append(pd.read_csv("Data/{}/{}Labels_10k_{}Sparsity.csv".format(sysName2, sysName, i/10 ), header=None))
-    yt.append(pd.read_csv("Data/{}/{}Labels_2k_{}Sparsity.csv".format(sysName2, sysName, i/10 ), header=None))
+    X.append(pd.read_csv("Data/{}/{}Data_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+    Xt.append(pd.read_csv("Data/{}/{}Data_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+    y.append(pd.read_csv("Data/{}/{}Labels_10k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
+    yt.append(pd.read_csv("Data/{}/{}Labels_2k_{}Sparsity.csv".format(sysName, sysName, i/10 ), header=None))
     
     X[i-1],y[i-1] = dataProc(X[i-1],y[i-1])
     Xt[i-1],yt[i-1] = dataProc(Xt[i-1],yt[i-1])
