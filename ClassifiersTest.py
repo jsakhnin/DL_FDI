@@ -103,8 +103,6 @@ X_test, y_test = shuffle(X_test, y_test, random_state=0)
 gnb = GaussianNB()
 knn = KNeighborsClassifier(n_neighbors=20)
 dtc = tree.DecisionTreeClassifier()
-svmL = svm.SVC(kernel = 'linear')
-svmR = svm.SVC(kernel = 'rbf')
 
 print("Initializing training")
 #Training Classifiers
@@ -131,46 +129,28 @@ gnbTime = time2 - time1;
 print("GNB DONE")
 result_gnb, f1_gnb, precision_gnb, recall_gnb, fp_gnb = evaluateClassifier(gnb, Xt,yt)
 
-time1 = time.time()
-svmL.fit(X_train,y_train)
-time2 = time.time()
-svmLTime = time2 - time1;
-print("Linear SVM done")
-result_svml, f1_svml, precision_svml, recall_svml, fp_svml = evaluateClassifier(svmL, Xt,yt)
-
-time1 = time.time()
-svmR.fit(X_train,y_train)
-time2 = time.time()
-svmRTime = time2 - time1;
-print("RBF SVM done")
-
-result_svmr, f1_svmr, precision_svmr, recall_svmr, fp_svmr = evaluateClassifier(svmR, Xt,yt)
     
 finalTimes = [dctTime, 
               knnTime, 
               gnbTime, 
-              svmLTime,
-              svmRTime]
+              ]
 
 finalModels = ['DCT',
                'KNN',
                'NB',
-               'SVM-L',
-               'SVM-R'
                ]
 
 sparsity = np.arange(0.1,1.1,0.1)
 
 ################   DATA OUTPUT (Saving in Excel)    ###############
 # Create a Pandas Excel writer using XlsxWriter as the engine.
-writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+writer = pd.ExcelWriter('output/RESULTS_'+sysName+'_'+testType+'.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
 
 
 Results_dct = pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_dct, 'F1 score': f1_dct, 'Precision': precision_dct, 'Recall': recall_dct, 'False Positive Rate': fp_dct})
 Results_gnb = pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_gnb, 'F1 score': f1_gnb, 'Precision': precision_gnb, 'Recall': recall_gnb, 'False Positive Rate': fp_gnb})
 Results_knn = pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_knn, 'F1 score': f1_knn, 'Precision': precision_knn, 'Recall': recall_knn, 'False Positive Rate': fp_knn})
-Results_svml = pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_svml, 'F1 score': f1_svml, 'Precision': precision_svml, 'Recall': recall_svml, 'False Positive Rate': fp_svml})
-Results_svmr = pd.DataFrame({'Sparsity': sparsity, 'Accuracy': result_svmr, 'F1 score': f1_svmr, 'Precision': precision_svmr, 'Recall': recall_svmr, 'False Positive Rate': fp_svmr})
+
 
 Results_times = pd.DataFrame({'Model': finalModels, 'Training Time': finalTimes})
 
@@ -178,8 +158,7 @@ Results_times = pd.DataFrame({'Model': finalModels, 'Training Time': finalTimes}
 Results_dct.to_excel(writer, sheet_name="DCT")
 Results_gnb.to_excel(writer, sheet_name="GNB")
 Results_knn.to_excel(writer, sheet_name="KNN")
-Results_svml.to_excel(writer, sheet_name="SVM_L")
-Results_svmr.to_excel(writer, sheet_name="SVM-R")
+
 
 Results_times.to_excel(writer, sheet_name="Training Time")
 

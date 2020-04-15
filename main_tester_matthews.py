@@ -93,7 +93,7 @@ def modelMAT(sysName):
     MAT = [m1, m7]
     ################   DATA OUTPUT (Saving in Excel)    ###############
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+    writer = pd.ExcelWriter('output/RESULTS_'+sysName+'_'+testType+'.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
     
     
     Results = pd.DataFrame({'Models': models, 'Matthew Correlation Coefficient': MAT})

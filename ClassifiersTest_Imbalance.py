@@ -130,9 +130,9 @@ def imb_test (sysName):
     
     ################   DATA OUTPUT (Saving in Excel)    ###############
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer_dct = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_DCT.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
-    writer_gnb = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_GNB.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
-    writer_knn = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_KNN.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+    writer_dct = pd.ExcelWriter('output/RESULTS_'+sysName+'_'+testType+'_DCT.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+    writer_gnb = pd.ExcelWriter('output/RESULTS_'+sysName+'_'+testType+'_GNB.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+    writer_knn = pd.ExcelWriter('output/RESULTS_'+sysName+'_'+testType+'_KNN.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
     
     for i in range(9):
         Results_dct[i].to_excel(writer_dct, sheet_name = "Imb {}".format(imbalanceRange[i]) )

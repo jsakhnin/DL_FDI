@@ -1,9 +1,0 @@
-IEEE 57 ONLY
-
-
-Larger Feature Size
-State Estimation
-
-demand noise: 50%
-
-Attack magnitude updated in terms of measurement. Magnitude of 20%

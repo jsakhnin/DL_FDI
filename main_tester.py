@@ -134,7 +134,7 @@ sparsity = np.arange(0.1,1.1,0.1)
 
 ################   DATA OUTPUT (Saving in Excel)    ###############
 # Create a Pandas Excel writer using XlsxWriter as the engine.
-writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+writer = pd.ExcelWriter('output/RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
 
 Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1 Accuracy': result1, 'Model 7 Accuracy': result7,
                         'Model 1 F1': f1_1, 'Model 7 F1': f1_7,

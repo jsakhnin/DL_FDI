@@ -89,7 +89,7 @@ def modelAUC(sysName):
     fpr7, tpr7, thresh7, auc7 = evaluateROC(model7, X_test,y_test)
     ################   DATA OUTPUT (Saving in Excel)    ###############
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+    writer = pd.ExcelWriter('output/RESULTS_'+sysName+'_'+testType+'.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
     
     
     Results1 = pd.DataFrame({'False Positive Rate': fpr1, 'True Positive Rate': tpr1, 'Thresholds': thresh1, 'AUC': auc1})

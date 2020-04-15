@@ -130,7 +130,7 @@ def classifierTest(sysName):
     
     ################   DATA OUTPUT (Saving in Excel)    ###############
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+    writer = pd.ExcelWriter('output/RESULTS_'+sysName+'_'+testType+'.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
     
     
     Results_dct = pd.DataFrame({'False Positive Rate': fpr_dtc, 'True Positive Rate': tpr_dtc, 'Thresholds': thresh_dtc, 'AUC': auc_dtc})

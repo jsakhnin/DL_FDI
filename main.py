@@ -205,7 +205,7 @@ result7, f1_7, precision7, recall7, fp7 = evaluateModel(model7, Xt,yt)
 
 ################   DATA OUTPUT (Saving in Excel)    ###############
 # Create a Pandas Excel writer using XlsxWriter as the engine.
-writer = pd.ExcelWriter('RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
+writer = pd.ExcelWriter('output/RESULTS_'+sysName+'_'+testType+'_'+str(numEpochs)+'Epochs.xlsx', engine='xlsxwriter') #CHANGE THE NAME OF THE OUTPUT EXCEL FILE HERE
 
 #Results = pd.DataFrame({'Sparsity': sparsity, 'Model 1': result1, 'Model 2': result2,'Model 3': result3, 'Model 4': result4,
                         #'Model 5': result5,  'Model 6': result6, 'Model 7': result7})
